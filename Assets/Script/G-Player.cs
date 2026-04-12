@@ -2,24 +2,53 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(AudioSource))]
 public class GPlayer : MonoBehaviour
 {
     private Rigidbody2D rb;
+    private AudioSource audioSource;
     private bool isGravityInverted = false;
+
+    [Header("Audio Settings")]
+    public AudioClip soundW;
+    public AudioClip soundS;
 
     [Header("Gravity Settings")]
     public float standardGravity = 3f;
+    public float gravityCooldown = 0.5f;
+    private float nextGravitySwitchTime = 0f;
 
     [Header("Movement Settings")]
     public float moveSpeed = 8f;
 
+    private bool isTouchingCollider = false;
+
+    [HideInInspector]
+    public Vector3 respawnPoint;
+
     void Start()
     {
-        
         rb = GetComponent<Rigidbody2D>();
+        audioSource = GetComponent<AudioSource>();
         
         
         rb.gravityScale = standardGravity;
+
+        
+        respawnPoint = transform.position;
+    }
+
+    public void Respawn()
+    {
+        transform.position = respawnPoint;
+        
+        
+        rb.linearVelocity = Vector2.zero;
+
+        if (isGravityInverted)
+        {
+            SetGravity(false);
+        }
     }
 
     void Update()
@@ -27,14 +56,20 @@ public class GPlayer : MonoBehaviour
         if (Keyboard.current == null) return;
 
         
+        if (Time.time < nextGravitySwitchTime || !isTouchingCollider) return;
+        
         if (Keyboard.current.wKey.wasPressedThisFrame && !isGravityInverted)
         {
+            if (soundW != null) audioSource.PlayOneShot(soundW);
             SetGravity(true);
+            nextGravitySwitchTime = Time.time + gravityCooldown;
         }
         
         else if (Keyboard.current.sKey.wasPressedThisFrame && isGravityInverted)
         {
+            if (soundS != null) audioSource.PlayOneShot(soundS);
             SetGravity(false);
+            nextGravitySwitchTime = Time.time + gravityCooldown;
         }
     }
 
@@ -44,11 +79,29 @@ public class GPlayer : MonoBehaviour
 
         
         float moveInput = 0f;
-        if (Keyboard.current.dKey.isPressed) moveInput += 1f;
-        if (Keyboard.current.aKey.isPressed) moveInput -= 1f;
+        if (isTouchingCollider)
+        {
+            if (Keyboard.current.dKey.isPressed) moveInput += 1f;
+            if (Keyboard.current.aKey.isPressed) moveInput -= 1f;
 
-        
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+            // BACKPAIN...
+            rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        isTouchingCollider = true;
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        isTouchingCollider = true;
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        isTouchingCollider = false;
     }
 
     private void SetGravity(bool invert)
@@ -63,7 +116,8 @@ public class GPlayer : MonoBehaviour
 
         
         Vector3 newScale = transform.localScale;
-        
+        //Absolute chinema
+
         newScale.y = isGravityInverted ? -Mathf.Abs(newScale.y) : Mathf.Abs(newScale.y);
         transform.localScale = newScale;
     }

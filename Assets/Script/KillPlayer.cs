@@ -6,25 +6,20 @@ public class KillPlayer : MonoBehaviour
     
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.GetComponent<GPlayer>() != null)
+        GPlayer player = collision.gameObject.GetComponent<GPlayer>();
+        if (player != null)
         {
-            Die();
+            player.Respawn();
         }
     }
 
     
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.GetComponent<GPlayer>() != null)
+        GPlayer player = collision.gameObject.GetComponent<GPlayer>();
+        if (player != null)
         {
-            Die();
+            player.Respawn();
         }
-    }
-
-    private void Die()
-    {
-        
-        
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
