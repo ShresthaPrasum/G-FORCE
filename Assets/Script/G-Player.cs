@@ -16,6 +16,7 @@ public class GPlayer : MonoBehaviour
     [Header("Gravity Settings")]
     public float standardGravity = 3f;
     public float gravityCooldown = 0.5f;
+    public bool requireCollisionToFlip = true;
     private float nextGravitySwitchTime = 0f;
 
     [Header("Movement Settings")]
@@ -56,7 +57,8 @@ public class GPlayer : MonoBehaviour
         if (Keyboard.current == null) return;
 
         
-        if (Time.time < nextGravitySwitchTime || !isTouchingCollider) return;
+        if (Time.time < nextGravitySwitchTime) return;
+        if (requireCollisionToFlip && !isTouchingCollider) return;
         
         if (Keyboard.current.wKey.wasPressedThisFrame && !isGravityInverted)
         {
@@ -102,6 +104,16 @@ public class GPlayer : MonoBehaviour
     private void OnCollisionExit2D(Collision2D collision)
     {
         isTouchingCollider = false;
+    }
+
+    public void ApplyModifiers(float newGravity, float newCooldown, bool collisionRequired)
+    {
+        standardGravity = newGravity;
+        gravityCooldown = newCooldown;
+        requireCollisionToFlip = collisionRequired;
+
+        // Apply immediately if already scaled
+        rb.gravityScale = isGravityInverted ? -standardGravity : standardGravity;
     }
 
     private void SetGravity(bool invert)

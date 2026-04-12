@@ -54,10 +54,10 @@ public class LevelLoader : MonoBehaviour
     {
         if (candidate == null) return false;
 
-        // 1. Check by Tag
+        
         if (!string.IsNullOrWhiteSpace(playerTag) && candidate.CompareTag(playerTag)) return true;
 
-        // 2. Check parents by Tag
+        
         if (allowParentTagCheck)
         {
             Transform current = candidate.transform.parent;
@@ -68,7 +68,7 @@ public class LevelLoader : MonoBehaviour
             }
         }
 
-        // 3. Check for our specific GPlayer script instead of the missing PlayerInstabilityController
+        
         if (allowGPlayerCheck)
         {
             if (candidate.GetComponent<GPlayer>() != null || candidate.GetComponentInParent<GPlayer>() != null)
