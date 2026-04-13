@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(AudioSource))]
@@ -8,12 +9,9 @@ public class GPlayer : MonoBehaviour
     private Rigidbody2D rb;
     private AudioSource audioSource;
     private bool isGravityInverted = false;
-
-    [Header("Audio Settings")]
     public AudioClip soundW;
     public AudioClip soundS;
 
-    [Header("Gravity Settings")]
     public float standardGravity = 3f;
     public float gravityCooldown = 0.5f;
     public bool requireCollisionToFlip = true;
@@ -21,6 +19,9 @@ public class GPlayer : MonoBehaviour
 
     [Header("Movement Settings")]
     public float moveSpeed = 8f;
+
+    [Header("Game Flow")]
+    public string homeSceneName = "Home";
 
     private bool isTouchingCollider = false;
 
@@ -56,6 +57,12 @@ public class GPlayer : MonoBehaviour
     {
         if (Keyboard.current == null) return;
 
+        // MANDATORY FEATURE
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            SceneManager.LoadScene(homeSceneName);
+            return;
+        }
         
         if (Time.time < nextGravitySwitchTime) return;
         if (requireCollisionToFlip && !isTouchingCollider) return;
@@ -112,7 +119,7 @@ public class GPlayer : MonoBehaviour
         gravityCooldown = newCooldown;
         requireCollisionToFlip = collisionRequired;
 
-        // Apply immediately if already scaled
+        // GEOMETRY DASH PLAYER GONNA LOVE THIS
         rb.gravityScale = isGravityInverted ? -standardGravity : standardGravity;
     }
 
