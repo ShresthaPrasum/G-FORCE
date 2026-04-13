@@ -65,7 +65,7 @@ public class LevelLoader : MonoBehaviour
             {
                 if (!string.IsNullOrWhiteSpace(playerTag) && current.CompareTag(playerTag)) return true;
                 current = current.parent;
-            }
+            }   
         }
 
         
