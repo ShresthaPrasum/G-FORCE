@@ -3,10 +3,8 @@ using UnityEngine.SceneManagement;
 
 public class LevelLoader : MonoBehaviour
 {
-    [Header("Target")]
     [SerializeField] private string nextSceneName = "Level2";
 
-    [Header("Activation")]
     [SerializeField] private string playerTag = "Player";
     [SerializeField] private bool allowParentTagCheck = true;
     [SerializeField] private bool allowGPlayerCheck = true;
@@ -18,23 +16,27 @@ public class LevelLoader : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!useTrigger) return;
+        
         TryLoad(other.gameObject);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (useTrigger) return;
+
         TryLoad(collision.gameObject);
     }
 
     private void TryLoad(GameObject candidate)
     {
         if (hasLoaded) return;
+
         if (!IsPlayerObject(candidate)) return;
 
         if (string.IsNullOrWhiteSpace(nextSceneName))
         {
             Debug.LogWarning("LevelLoader has no target scene set.");
+
             return;
         }
 
@@ -42,6 +44,7 @@ public class LevelLoader : MonoBehaviour
 
         if (loadDelay > 0f)
         {
+
             Invoke(nameof(LoadTargetScene), loadDelay);
         }
         else
@@ -64,6 +67,7 @@ public class LevelLoader : MonoBehaviour
             while (current != null)
             {
                 if (!string.IsNullOrWhiteSpace(playerTag) && current.CompareTag(playerTag)) return true;
+
                 current = current.parent;
             }   
         }
